@@ -327,7 +327,7 @@
         <subsystem xmlns="urn:jboss:domain:undertow:12.0" default-server="default-server" default-virtual-host="default-host" default-servlet-container="default" default-security-domain="other" statistics-enabled="${wildfly.undertow.statistics-enabled:${wildfly.statistics-enabled:false}}">
             <buffer-cache name="default"/>
             <server name="default-server">
-                <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
+                <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true" proxy-address-forwarding="true"/>
                 <https-listener name="https" socket-binding="https" security-realm="ApplicationRealm" enable-http2="true"/>
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
@@ -444,19 +444,29 @@
                         <user-name>sa</user-name>
                         <password>sa</password>
                     </security>
-                </datasource>
-                <datasource jndi-name="java:jboss/datasources/KeycloakDS" pool-name="KeycloakDS" enabled="true" use-java-context="true" statistics-enabled="${wildfly.datasources.statistics-enabled:${wildfly.statistics-enabled:false}}">
-                    <connection-url>jdbc:h2:${jboss.server.data.dir}/keycloak;AUTO_SERVER=TRUE</connection-url>
-                    <driver>h2</driver>
-                    <security>
-                        <user-name>sa</user-name>
-                        <password>sa</password>
-                    </security>
-                </datasource>
+	    </datasource>
+	    <datasource jndi-name="java:jboss/datasources/KeycloakDS" pool-name="KeycloakDS" enabled="true" use-java-context="true">
+		<connection-url>jdbc:sqlserver://sunbird.database.windows.net:1433;DatabaseName=sunbirdDB
+			;</connection-url>
+		<driver>sqlserver</driver>
+		<security>
+			<user-name>sharifa2708</user-name>
+			<password>Sharifa@2708</password>
+		</security>
+		<validation>
+			<background-validation>true</background-validation>
+			<background-validation-millis>30000</background-validation-millis>
+		</validation>
+	</datasource>
+
                 <drivers>
                     <driver name="h2" module="com.h2database.h2">
                         <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
-                    </driver>
+        	    </driver>
+                    <driver name="sqlserver" module="com.microsoft.sqlserver">
+			    <driver-class>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver-class>
+		            <xa-datasource-class>com.microsoft.sqlserver.jdbc.SQLServerXADataSource</xa-datasource-class>
+		   </driver>
                 </drivers>
             </datasources>
         </subsystem>
@@ -588,15 +598,15 @@
             <object-store path="tx-object-store" relative-to="jboss.server.data.dir"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:weld:4.0"/>
-    </profile>
-    <interfaces>
-        <interface name="management">
-            <inet-address value="${jboss.bind.address.management:127.0.0.1}"/>
-        </interface>
-        <interface name="public">
-            <inet-address value="${jboss.bind.address:127.0.0.1}"/>
-        </interface>
-    </interfaces>
+	</profile>
+	<interfaces>
+	    <interface name="management">        
+		<any-address/>
+	    </interface>
+	    <interface name="public">
+		<any-address/>
+	    </interface>
+	</interfaces>
     <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
         <socket-binding name="ajp" port="${jboss.ajp.port:8009}"/>
         <socket-binding name="http" port="${jboss.http.port:8080}"/>
